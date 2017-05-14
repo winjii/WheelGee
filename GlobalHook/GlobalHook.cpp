@@ -55,9 +55,15 @@ __declspec(dllexport) LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wp, LPARA
 
 	MSLLHOOKSTRUCT *ms = (MSLLHOOKSTRUCT*)lp;
 	int x = ms->pt.x, y = ms->pt.y;
+	bool cancelFlag = false;
 	if (wp == WM_XBUTTONDOWN && GET_XBUTTON_WPARAM(ms->mouseData) == 1)
 	{
 		isScrollMode = !isScrollMode;
+		cancelFlag = true;
+	}
+	else if ((wp == WM_XBUTTONUP || wp == WM_XBUTTONDBLCLK) && GET_XBUTTON_WPARAM(ms->mouseData) == 1)
+	{
+		cancelFlag = true;
 	}
 	else if (!isFirst && wp == WM_MOUSEMOVE && isScrollMode)
 	{
@@ -68,18 +74,18 @@ __declspec(dllexport) LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wp, LPARA
 		input.type = INPUT_MOUSE;
 		input.mi.mouseData = delta*10;
 		input.mi.dwFlags = MOUSEEVENTF_WHEEL;
+		x = lastX; y = lastY;
+		
 		isPaused = true;
 		SendInput(1, &input, sizeof(INPUT));
 		isPaused = false;
+		cancelFlag = true;
 	}
 	
 	lastX = x; lastY = y;
 	isFirst = false;
 
-	if (wp == WM_XBUTTONDOWN || wp == WM_XBUTTONUP || wp == WM_NCXBUTTONDOWN || wp == WM_NCXBUTTONUP)
-	{
-		if (GET_XBUTTON_WPARAM(ms->mouseData) == 1) return 1;
-	}
+	if (cancelFlag) return 1;
 	return CallNextHookEx(mouseHook, nCode, wp, lp);
 }
 
