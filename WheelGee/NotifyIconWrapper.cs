@@ -6,17 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using MMFrame.Windows.GlobalHook;
-using MMFrame.Windows.Simulation;
 using System.Runtime.InteropServices;
 
 namespace WheelGee
 {
     public partial class NotifyIconWrapper : Component
     {
-        private MouseHook.StateMouse lastState;
         private bool isScrollMode = false;
-        private List<InputSimulator.Input> inputs;
 
         [DllImport("GlobalHook.dll", CallingConvention = CallingConvention.Cdecl)]
         static extern int SetHook(int hWnd);
@@ -31,7 +27,6 @@ namespace WheelGee
             toolStripMenuItem_Exit.Click += toolStripMenuItem_Exit_Click;
             //MouseHook.AddEvent(hookMouseInput);
             //MouseHook.Start();
-            inputs = new List<InputSimulator.Input>();
             int ret = SetHook(0);
             Console.WriteLine(ret);
         }
@@ -46,21 +41,6 @@ namespace WheelGee
             container.Add(this);
 
             InitializeComponent();
-        }
-
-        private void hookMouseInput(ref MouseHook.StateMouse s)
-        {
-            //if (s.Stroke == MouseHook.Stroke.X2_DOWN) isScrollMode = !isScrollMode;
-            //if (isScrollMode)
-            //{
-            //    int dy = lastState.Y - s.Y;
-            //    inputs.Clear();
-            //    InputSimulator.AddMouseInput(ref inputs, InputSimulator.MouseStroke.WHEEL, 120, false, 0, 0);
-            //    MouseHook.Pause();
-            //    InputSimulator.SendInput(inputs);
-            //    MouseHook.Start();
-            //}
-            //lastState = s;
         }
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
