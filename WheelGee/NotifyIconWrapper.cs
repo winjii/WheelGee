@@ -14,9 +14,9 @@ namespace WheelGee
     {
         private bool isScrollMode = false;
 
-        [DllImport("GlobalHook.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("GlobalHook", CallingConvention = CallingConvention.Cdecl)]
         static extern int SetHook(int hWnd);
-        [DllImport("GlobalHook.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("GlobalHook", CallingConvention = CallingConvention.Cdecl)]
         static extern int ResetHook();
 
         public NotifyIconWrapper()
