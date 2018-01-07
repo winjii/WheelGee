@@ -19,6 +19,7 @@ bool isPaused = false;
 int ctrlX = -1, ctrlY = -1;
 int lastX, lastY;
 int debugData = -1;
+int virtualDX = 0, virtualDY = 0;
 
 __declspec(dllexport) int SetHook(HWND hWnd)
 {
@@ -57,11 +58,14 @@ __declspec(dllexport) LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wp, LPARA
 	bool ctrl = GetAsyncKeyState(VK_CONTROL);
 	if (!ctrl) { ctrlX = -1; ctrlY = -1; }
 	if (ctrl) {
-		if (ctrlX == -1 && ctrlY == -1) { ctrlX = x; ctrlY = y; }
-		int virtualDX = x - ctrlX;
-		int virtualDY = y - ctrlY;
-		int actualDX = virtualDX/3.0;
-		int actualDY = virtualDY/3.0;
+		if (ctrlX == -1 && ctrlY == -1) {
+			ctrlX = x; ctrlY = y;
+			virtualDX = 0; virtualDY = 0;
+		}
+		virtualDX += x - lastX;
+		virtualDY += y - lastY;
+		int actualDX = virtualDX/5.0;
+		int actualDY = virtualDY/5.0;
 		x = ctrlX + actualDX;
 		y = ctrlY + actualDY;
 		INPUT input;
@@ -73,7 +77,6 @@ __declspec(dllexport) LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wp, LPARA
 
 		isPaused = true;
 		SendInput(1, &input, sizeof(INPUT));
-		isPaused = false;
 		cancelFlag = true;
 	}
 	if (GET_XBUTTON_WPARAM(ms->mouseData) == 1)
@@ -113,6 +116,7 @@ __declspec(dllexport) LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wp, LPARA
 	
 	lastX = x; lastY = y;
 	isFirst = false;
+	isPaused = false;
 
 	if (cancelFlag) return 1;
 	return CallNextHookEx(mouseHook, nCode, wp, lp);
